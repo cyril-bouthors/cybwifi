@@ -1,0 +1,90 @@
+#!/bin/bash
+#
+# Copyright (C) 2012-2013 Cyril Bouthors <cyril@boutho.rs>
+#
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program. If not, see <http://www.gnu.org/licenses/>.
+#
+
+set -e -o pipefail
+
+interface=wlan0
+file=/etc/network/interfaces.d/cybwifi
+
+# Stop all networks
+ifdown eth0 || true
+ifconfig eth0 down || true
+ifdown wlan0 || true
+/etc/init.d/openvpn stop
+
+# Check if eth0 is connected
+ifconfig eth0 up
+sleep 2
+if timeout 5 mii-tool eth0 2>/dev/null | grep -qF 'link ok'
+then
+    ifdown eth0
+    ifup eth0
+    exit
+fi
+
+# Check if usb0 exists
+if ifconfig -a | grep -qFw usb0
+then
+    ifdown usb0
+    ifup usb0
+    exit
+fi
+
+ifconfig $interface up
+
+. $(dirname $0)/cybwifi.conf
+
+essids=$(iwlist $interface scanning | awk -F\" '/ESSID/ {print $2}')
+
+# Try again
+if [ -z "$essids" ]
+then
+    essids=$(iwlist $interface scanning | awk -F\" '/ESSID/ {print $2}')
+fi
+
+for essid in $essids
+do
+    if [[ ${keys["$essid"]} ]]
+    then
+	echo "$0: ====== found $essid ======"
+	key=${keys[$essid]}
+	cat > $file <<EOF
+iface wlan0 inet dhcp
+    wireless-txpower auto
+
+#   WEP
+#   wireless-essid $essid
+#   wireless-key1 $key
+
+#   WPA
+    wpa-ssid $essid
+EOF
+
+	if [ ! -z "$key" -a "$key" != ' ' ]
+	then
+	    echo "wpa-psk $key" >> $file
+	fi
+
+	ifdown wlan0
+	ifdown eth0
+	# in case we configured eth0 manually
+	ifconfig eth0 down
+	ifup wlan0
+	exit
+    fi
+done
+echo "$0: No network found" >&2
