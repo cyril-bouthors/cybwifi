@@ -58,7 +58,9 @@ fi
 
 for essid in $essids
 do
-    if [[ ${keys["$essid"]} ]]
+    # Check if key exists. Stolen from
+    # http://superuser.com/questions/195598/test-if-element-is-in-array-in-bash
+    if [[ ${keys["$essid"]+_} ]]
     then
 	echo "$0: ====== found $essid ======"
 	key=${keys[$essid]}
