@@ -50,15 +50,7 @@ ifconfig $interface up
 
 . $(dirname $0)/cybwifi.conf
 
-essids=$(iwlist $interface scanning | awk -F\" '/ESSID/ {print $2}')
-
-# Try again
-if [ -z "$essids" ]
-then
-    essids=$(iwlist $interface scanning | awk -F\" '/ESSID/ {print $2}')
-fi
-
-for essid in $essids
+iwlist $interface scanning | awk -F\" '/ESSID/ {print $2}' | while read essid
 do
     # Check if key exists. Stolen from
     # http://superuser.com/questions/195598/test-if-element-is-in-array-in-bash
@@ -95,4 +87,3 @@ EOF
 	exit
     fi
 done
-echo "$0: No network found" >&2
