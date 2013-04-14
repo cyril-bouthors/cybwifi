@@ -28,7 +28,7 @@ ifdown wlan0 || true
 
 # Check if eth0 is connected
 ifconfig eth0 up
-sleep 2
+sleep 5
 if timeout 5 mii-tool eth0 2>/dev/null | grep -qF 'link ok'
 then
     ifdown eth0
