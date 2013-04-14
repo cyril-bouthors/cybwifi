@@ -36,6 +36,7 @@ then
     killall -s SIGUSR1 autossh 2>/dev/null
     exit
 fi
+ifconfig eth0 down
 
 # Check if usb0 exists
 if ifconfig -a | grep -qFw usb0
