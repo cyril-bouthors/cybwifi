@@ -33,7 +33,7 @@ if timeout 5 mii-tool eth0 2>/dev/null | grep -qF 'link ok'
 then
     ifdown eth0
     ifup eth0
-    killall -s SIGUSR1 autossh 2>/dev/null
+    killall -s SIGUSR1 autossh 2>/dev/null || true
     exit
 fi
 ifconfig eth0 down
@@ -43,7 +43,7 @@ if ifconfig -a | grep -qFw usb0
 then
     ifdown usb0
     ifup usb0
-    killall -s SIGUSR1 autossh 2>/dev/null
+    killall -s SIGUSR1 autossh 2>/dev/null || true
     exit
 fi
 
@@ -90,7 +90,7 @@ EOF
 	ifconfig eth0 down
 	ifup wlan0
 
-	killall -s SIGUSR1 autossh 2>/dev/null
+	killall -s SIGUSR1 autossh 2>/dev/null || true
 	exit
     fi
 done
