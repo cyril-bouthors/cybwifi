@@ -53,6 +53,12 @@ ifconfig $interface up
 
 iwlist $interface scanning | awk -F\" '/ESSID/ {print $2}' | while read essid
 do
+    # Check if ESSID is defined
+    if [ -z "$essid" ]
+    then
+	continue
+    fi
+
     # Check if key exists. Stolen from
     # http://superuser.com/questions/195598/test-if-element-is-in-array-in-bash
     if [[ ${keys["$essid"]+_} ]]
