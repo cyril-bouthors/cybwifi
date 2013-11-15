@@ -19,24 +19,25 @@ set -e -o pipefail
 
 interface=wlan0
 file=/etc/network/interfaces.d/cybwifi
+eth_dev='eth0'
 
 # Stop all networks
-ifdown eth0 || true
-ifconfig eth0 down || true
+ifdown $eth_dev || true
+ifconfig $eth_dev down || true
 ifdown wlan0 || true
 /etc/init.d/openvpn stop
 
-# Check if eth0 is connected
-ifconfig eth0 up
+# Check if $eth_dev is connected
+ifconfig $eth_dev up || true
 sleep 5
-if timeout 5 mii-tool eth0 2>/dev/null | grep -qF 'link ok'
+if timeout 5 mii-tool $eth_dev 2>/dev/null | grep -qF 'link ok'
 then
-    ifdown eth0
-    ifup eth0
+    ifdown $eth_dev
+    ifup $eth_dev
     killall -s SIGUSR1 autossh 2>/dev/null || true
     exit
 fi
-ifconfig eth0 down
+ifconfig $eth_dev down || true
 
 # Check if usb0 exists
 if ifconfig -a | grep -qFw usb0
@@ -85,9 +86,9 @@ EOF
 	fi
 
 	ifdown wlan0
-	ifdown eth0
-	# in case we configured eth0 manually
-	ifconfig eth0 down
+	ifdown $eth_dev || true
+	# in case we configured $eth_dev manually
+	ifconfig $eth_dev down || true
 	ifup wlan0
 
 	killall -s SIGUSR1 autossh 2>/dev/null || true
