@@ -17,9 +17,7 @@
 
 set -e -o pipefail
 
-interface=wlan0
-file=/etc/network/interfaces.d/cybwifi
-eth_dev='eth0'
+. $(dirname $0)/cybwifi.conf
 
 # Stop all networks
 ifdown $eth_dev || true
@@ -49,8 +47,6 @@ then
 fi
 
 ifconfig $interface up
-
-. $(dirname $0)/cybwifi.conf
 
 iwlist $interface scanning | awk -F\" '/ESSID/ {print $2}' | while read essid
 do
