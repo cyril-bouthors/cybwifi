@@ -76,9 +76,9 @@ EOF
 
 	if [ ! -z "$key" -a "$key" != ' ' ]
 	then
-	    echo "wpa-psk $key" >> $file
+	    echo "    wpa-psk $key" >> $file
 	else
-	    echo "wpa-key_mgmt NONE" >> $file
+	    echo "    wpa-key_mgmt NONE" >> $file
 	fi
 
 	ifdown wlan0
