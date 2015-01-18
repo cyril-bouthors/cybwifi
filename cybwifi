@@ -91,3 +91,5 @@ EOF
 	exit
     fi
 done
+
+echo 'No known Wi-Fi network found'
